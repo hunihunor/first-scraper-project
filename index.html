@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraper</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dental Appointment Scraper</h1>
+    <form id="scraperForm">
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date" required>
+        <button type="submit">Run Scraper</button>
+    </form>
+
+    <div id="results"></div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
+        document.getElementById('scraperForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const date = document.getElementById('date').value;
+
+            // Send a POST request to the server
+            fetch('/run-scraper', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ date })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                // Display the results in the results div
+                document.getElementById('results').innerHTML = data;
+            })
+            .catch(error => {
+                document.getElementById('results').innerHTML = `<h2>Error running the scraper</h2><p>${error.message}</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
