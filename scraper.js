@@ -2,19 +2,20 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 
 (async () => {
-  const date = process.argv[2]; // Capture the date argument from command line
-  // console.log(`Running scraper for date: ${date}`);
+  const username = process.argv[2]; // Capture the username argument
+  const password = process.argv[3]; // Capture the password argument
+  const date = process.argv[4]; // Capture the date argument
 
   // Launch a browser instance
-  const browser = await puppeteer.launch({ headless: false }); // headless: true for background operation
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
 
   // Navigate to the dental clinic site
   await page.goto("https://oralmed.flexi-dent.hu/");
-  await page.type(".form-control[name=emailaddress]", "username"); // Adjust the selector
-  await page.type(".form-control[name=password]", "password");
+  await page.type(".form-control[name=emailaddress]", username); // Use the username from the input field
+  await page.type(".form-control[name=password]", password); // Use the password from the input field
   await page.click(".form-control[type=submit]");
-  await page.waitForNavigation(); // Wait for page to load after login
+  await page.waitForNavigation();
 
   const [year, month, day] = date.split("-"); // Split the input date into components
   await page.evaluate((year, month, day) => {
@@ -26,17 +27,15 @@ const fs = require("fs");
 
   // Select all appointment-like boxes
   const appointmentData = await page.evaluate(() => {
-    const boxes = Array.from(document.querySelectorAll(".calendarTreatmentBox")); // Adjust selector for boxes
-
+    const boxes = Array.from(document.querySelectorAll(".calendarTreatmentBox"));
     return boxes
       .map((box) => {
-        const patientID = box.getAttribute("data-patient") || "0"; // Extract patient ID (default to '0' for messages)
+        const patientID = box.getAttribute("data-patient") || "0";
         return { patientID };
       })
-      .filter((appointment) => appointment.patientID !== "0"); // Filter out message boxes
+      .filter((appointment) => appointment.patientID !== "0");
   });
 
-  // Navigate to each patient's cardboard page for valid IDs
   const results = [];
 
   for (const appointment of appointmentData) {
@@ -45,14 +44,12 @@ const fs = require("fs");
 
     await page.goto(patientURL);
 
-    // Adjust this selector based on the actual element on the patient page
     await page
       .waitForSelector("#pt_dental_discount", { timeout: 5000 })
       .catch(() => {
-        return; // Skip to the next patient if the element is not found
+        return;
       });
 
-    // Extract additional information as needed
     const discount = await page.evaluate(() => {
       const discountElement = document.querySelector("#pt_dental_discount");
       return discountElement ? discountElement.value : "No discount";
@@ -68,26 +65,20 @@ const fs = require("fs");
 
   const filteredResults = results.filter(result => result.discount !== '0');
 
-  // Output only the JSON results
-  console.log(JSON.stringify(filteredResults, null, 2)); // Output valid JSON
+  console.log(JSON.stringify(filteredResults, null, 2));
 
   const now = new Date();
-  const dateString = now.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  const dateString = now.toISOString().split("T")[0];
 
-  // Create a dynamic file name
   const fileName = `results_${dateString}.json`;
 
-  // Save results to the JSON file with the dynamic name
-  const resultsJSON = JSON.stringify(filteredResults, null, 2); // Pretty print JSON
+  const resultsJSON = JSON.stringify(filteredResults, null, 2);
 
   fs.writeFile(fileName, resultsJSON, (err) => {
     if (err) {
       console.error("Error writing to file", err);
-    } else {
-      // console.log(`Results saved to ${fileName}`);
     }
   });
 
-  // Close the browser
   await browser.close();
 })();

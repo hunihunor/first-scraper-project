@@ -21,9 +21,18 @@
 </head>
 <body>
     <h1>Dental Appointment Scraper</h1>
+
     <form id="scraperForm">
+        <!-- Add fields for username and password -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
         <label for="date">Select Date:</label>
         <input type="date" id="date" name="date" required>
+        
         <button type="submit">Run Scraper</button>
     </form>
 
@@ -36,6 +45,8 @@
         document.getElementById('scraperForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent form submission
 
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
             const date = document.getElementById('date').value;
 
             // Send a POST request to the server
@@ -44,7 +55,7 @@
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: new URLSearchParams({ date })
+                body: new URLSearchParams({ username, password, date })
             })
             .then(response => {
                 if (!response.ok) {

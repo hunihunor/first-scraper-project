@@ -18,9 +18,9 @@ app.get("/", (req, res) => {
 
 // Handle form submission and run the scraper with the selected date
 app.post("/run-scraper", (req, res) => {
-    const date = req.body.date; // Capture the selected date from the form
+    const { username, password, date } = req.body; // Capture username, password, and date from the form
 
-    exec(`node scraper.js ${date}`, (error, stdout, stderr) => {
+    exec(`node scraper.js ${username} ${password} ${date}`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing scraper.js: ${error.message}`);
         console.error(`stderr: ${stderr}`);
