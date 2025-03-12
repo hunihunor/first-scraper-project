@@ -7,7 +7,10 @@ const fs = require("fs");
   const date = process.argv[4]; // Capture the date argument
 
   // Launch a browser instance
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
   const page = await browser.newPage();
 
   // Navigate to the dental clinic site
