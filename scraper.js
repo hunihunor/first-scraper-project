@@ -9,6 +9,7 @@ const fs = require("fs");
   // Launch a browser instance
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath: '/usr/bin/chromium-browser', // Path to Chromium binary
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();

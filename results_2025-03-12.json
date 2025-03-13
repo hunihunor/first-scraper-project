@@ -1,0 +1,17 @@
+[
+  {
+    "patientID": "26676869",
+    "name": "TAPODI ATTILA",
+    "discount": "10"
+  },
+  {
+    "patientID": "26633501",
+    "name": "CSEGE SÁNDOR",
+    "discount": "10"
+  },
+  {
+    "patientID": "26680322",
+    "name": "BIRÓ DOMINIK",
+    "discount": "15"
+  }
+]
